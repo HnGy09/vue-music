@@ -110,7 +110,7 @@ export default {
       }
       this.timer = setTimeout(() => {
         // this.slider.goToPage(currentPage, 0, 400)
-        this.slider.prev(400)
+        this.slider.next(400)
       }, this.interval)
     }
   },
