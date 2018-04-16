@@ -5,10 +5,32 @@
 
 数据来源 QQ 音乐 `JSONP`，`Node` 代理部分接口
 
+# music
+
+> A Vue.js project
+
+## Build Setup
+
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:8888
+npm run dev
+
+# build for production with minification
+npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
+```
+
+For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
 
 ### 扫一扫手机预览 (微信右上角使用浏览器打开,网站被墙可访问备用地址)
 
-<img src="./App/Bulabula/vue-music/static.png" width="200px"/>
+<img src="./static/二维码.png" width="200px"/>
 
 [二维码地址](https://davidlin88.github.io/vue-music/)
 
