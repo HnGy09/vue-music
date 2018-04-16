@@ -9,7 +9,7 @@ fastclick.attach(document.body)
 在build文件夹下修改webpack.base.conf.js下的alias:
 ```
 alias: {
-  // code
+  // code here
   'common': resolve('src/common'),
   'components': resolve('src/components')
 }
