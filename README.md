@@ -30,9 +30,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 ### 扫一扫手机预览 (微信右上角使用浏览器打开,网站被墙可访问备用地址)
 
-<img src="static/二维码.png" width="200px"/>
-
-[二维码地址](https://hngy09.github.io/demo/)
+[地址](https://hngy09.github.io/demo/)
 
 ## 组件
 
