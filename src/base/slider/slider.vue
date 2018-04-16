@@ -22,7 +22,7 @@ export default {
     },
     interval: {
       type: Number,
-      default: 4000
+      default: 3500
     },
     loop: {
       type: Boolean,
