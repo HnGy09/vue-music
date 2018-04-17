@@ -82,7 +82,7 @@ export default {
       })
       this.slider.on('scrollEnd', () => {
         this.currentIndex = this.slider.getCurrentPage().pageX
-        console.log(this.currentIndex)
+        // console.log(this.currentIndex)
         if (this.autoPlay) {
           clearTimeout(this.timer)
           this.play()

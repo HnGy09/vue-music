@@ -10,6 +10,9 @@
           </div>
         </slider>
       </div>
+      <div class="recommend-list">
+        <h1 class="list-title">热门歌单推荐</h1>
+      </div>
     </div>
 
   </div>
@@ -17,7 +20,7 @@
 
 <script>
 import Slider from 'base/slider/slider'
-import {getRecommend} from 'api/recommend'
+import {getRecommend, getDiscList} from 'api/recommend'
 import {ERR_OK} from 'api/config'
 
 export default {
@@ -36,6 +39,9 @@ export default {
           console.log(res.data.slider)
           this.recommends = res.data.slider
         }
+      })
+      getDiscList().then((res) => {
+        console.log(res.data)
       })
     }
   },
