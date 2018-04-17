@@ -4,7 +4,7 @@
       <slot></slot>
     </div>
     <div class="dots">
-      <span class="dot" :class="{active:currentPageIndex === index}"  v-for="(item, index) in dots" :key="index"></span>
+      <span class="dot" v-for="(item, index) in docs" :class="{active : currentIndex === index}" :key="index" :dataIndex="index"></span>
     </div>
   </div>
 </template>
@@ -14,102 +14,86 @@ import {addClass} from 'common/js/dom'
 import BScroll from 'better-scroll'
 
 export default {
-  name: 'slider',
   props: {
-    autoPlay: {
+    loop: {
       type: Boolean,
       default: true
     },
     interval: {
       type: Number,
-      default: 3500
+      default: 4000
     },
-    loop: {
+    autoPlay: {
       type: Boolean,
       default: true
     }
   },
   data() {
     return {
-      currentPageIndex: 0,
-      dots: []
+      currentIndex: 0,
+      docs: []
     }
   },
   mounted() {
     setTimeout(() => {
       this.setSliderWidth()
       this.initSlider()
-      this.dot()
+      this.initDots()
       if (this.autoPlay) {
         this.play()
       }
     }, 20)
+    window.addEventListener('resize', () => {
+      if (!this.slider) {
+        return
+      }
+      this.setSliderWidth(true)
+      this.slider.refresh()
+    })
   },
   methods: {
-    setSliderWidth() {
-      let sliderGroupWidth = this.$refs.slider.clientWidth
-      this.children = this.$refs.sliderGroup.children
-      console.log(this.children)
+    setSliderWidth(isResize) {
       let width = 0
-      for (var i = 0; i < this.children.length; i++) {
-        addClass(this.children[i], 'slider-item')
-        this.children[i].style.width = sliderGroupWidth + 'px'
+      this.children = this.$refs.sliderGroup.children
+      let sliderGroupWidth = this.$refs.slider.clientWidth
+      for (let i = 0; i < this.children.length; i++) {
+        let child = this.children[i]
+        addClass(child, 'slider-item')
+        child.style.width = sliderGroupWidth + 'px'
         width += sliderGroupWidth
       }
-      if (this.loop) {
+      if (this.loop && !isResize) {
         width += 2 * sliderGroupWidth
       }
-      this.$refs.sliderGroup.style.width = `${width}px`
+      console.log(width)
+      this.$refs.sliderGroup.style.width = width + 'px'
     },
     initSlider() {
       this.slider = new BScroll(this.$refs.slider, {
         scrollX: true,
         scrollY: false,
+        click: true,
         momentum: false,
-        // snap: true,
-        // snapLoop: this.loop,
-        // snapThreshold: 0.3,
-        // snapSpeed: 400
         snap: {
           loop: this.loop,
           threshold: 0.3,
           speed: 400
-        },
-        click: true
+        }
       })
       this.slider.on('scrollEnd', () => {
-        let index = this.slider.getCurrentPage().pageX
-        // if (this.loop) {
-        //   index = index - 1
-        // }
-        this.currentPageIndex = index
+        this.currentIndex = this.slider.getCurrentPage().pageX
+        console.log(this.currentIndex)
         if (this.autoPlay) {
           clearTimeout(this.timer)
           this.play()
         }
       })
-      this.slider.on('beforeScrollStart', () => {
-        if (this.autoPlay) {
-          clearTimeout(this.timer)
-        }
-      })
     },
-    dot() {
-      console.log(this.children)
-      this.dots = new Array(this.children.length - 2)
+    initDots() {
+      this.docs = new Array(this.children.length - 2)
     },
     play() {
-      // let currentPage = this.currentPageIndex + 1
-
-      if (this.loop) {
-        // currentPage += 1
-        // if (currentPage > 5) {
-        //   currentPage = -1
-        // }
-        // console.log(currentPage)
-      }
       this.timer = setTimeout(() => {
-        // this.slider.goToPage(currentPage, 0, 400)
         this.slider.next(400)
       }, this.interval)
     }
@@ -117,7 +101,6 @@ export default {
   components: {
     BScroll
   }
-
 }
 </script>
 
