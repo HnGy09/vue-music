@@ -1,20 +1,30 @@
 <template>
   <div class="recommend">
-    <div class="recommend-content">
-      <div  class="slider-wrapper" v-if="recommends.length">
-        <slider>
-          <div v-for="item in recommends" :key="item.id">
-            <a :href="item.linkUrl">
-              <img :src="item.picUrl" alt="">
-            </a>
+    <scroll class="recommend-content" :data="discLists" ref="scroll">
+      <div>
+        <div class="slider-wrapper" v-if="recommends.length">
+          <slider>
+            <div v-for="item in recommends" :key="item.id">
+              <a :href="item.linkUrl">
+                <img @loadImage="loadImage" :src="item.picUrl" alt="">
+              </a>
+            </div>
+          </slider>
+        </div>
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <div v-for="item in discLists" v-bind:key="item.id" class="item">
+            <div class="icon">
+              <img width="60" height="60" v-lazy="item.imgurl" alt="">
+            </div>
+            <div class="text">
+              <h3 v-html="item.creator.name" class="name"></h3>
+              <p v-html="item.dissname" class="desc"></p>
+            </div>
           </div>
-        </slider>
+        </div>
       </div>
-      <div class="recommend-list">
-        <h1 class="list-title">热门歌单推荐</h1>
-      </div>
-    </div>
-
+    </scroll>
   </div>
 </template>
 
@@ -22,31 +32,49 @@
 import Slider from 'base/slider/slider'
 import {getRecommend, getDiscList} from 'api/recommend'
 import {ERR_OK} from 'api/config'
+import Scroll from 'base/scroll/scroll'
 
 export default {
   data() {
     return {
-      recommends: []
+      recommends: [],
+      discLists: []
     }
   },
   created() {
+    this._getDiscList()
     this._getRecommend()
   },
   methods: {
     _getRecommend() {
       getRecommend().then((res) => {
         if (res.code === ERR_OK) {
-          console.log(res.data.slider)
-          this.recommends = res.data.slider
+          if (res.code === ERR_OK) {
+            // console.log(res.data.slider)
+            this.recommends = res.data.slider
+          }
         }
       })
+    },
+    _getDiscList() {
       getDiscList().then((res) => {
-        console.log(res.data)
+        if (res.code === ERR_OK) {
+          // console.log(res.data)
+          this.discLists = res.data.list
+        }
       })
+      // console.log(document.getElementById('div'))
+    },
+    loadImage() {
+      if (!this.checked) {
+        this.$refs.scroll.refresh()
+        this.checked = true
+      }
     }
   },
   components: {
-    Slider
+    Slider,
+    Scroll
   }
 }
 </script>

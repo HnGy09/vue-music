@@ -4,7 +4,8 @@
       <slot></slot>
     </div>
     <div class="dots">
-      <span class="dot" v-for="(item, index) in docs" :class="{active : currentIndex === index}" :key="index" :dataIndex="index"></span>
+      <span class="dot" v-for="(item, index) in docs" :class="{active : currentIndex === index}" :key="index"
+            :dataIndex="index"></span>
     </div>
   </div>
 </template>
@@ -65,7 +66,7 @@ export default {
       if (this.loop && !isResize) {
         width += 2 * sliderGroupWidth
       }
-      console.log(width)
+      // console.log(width)
       this.$refs.sliderGroup.style.width = width + 'px'
     },
     initSlider() {
