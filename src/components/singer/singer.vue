@@ -1,6 +1,7 @@
 <template>
   <div class="singer">
-    <listview :data="singerList"></listview>
+    <listview :data="singerList" @select="selectItem"></listview>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -9,6 +10,7 @@ import {getSingerList} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import Singer from 'common/js/singer'
 import Listview from 'base/listview/listview'
+import SongList from 'base/song-list/song-list'
 
 const HOT_NAME = '热门'
 const CONST_LENGTH = 10
@@ -22,9 +24,15 @@ export default {
     this.getSingerList()
   },
   components: {
-    Listview
+    Listview,
+    SongList
   },
   methods: {
+    selectItem(item) {
+      this.$router.push({
+        path: `/singer/${item.id}`
+      })
+    },
     getSingerList() {
       getSingerList().then((res) => {
         if (res.code === ERR_OK) {

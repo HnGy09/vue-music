@@ -1,15 +1,5 @@
 <template>
   <scroll class="listview" :data="data" :probeType="3" @scroll="scroll" :listenScroll="listenScroll" ref="listview">
-    <!--<ul>-->
-    <!--<li v-for="item in data" :key="item.id" class="list-group">-->
-    <!--<h3 class="list-group-title">{{item.title}}</h3>-->
-    <!--<ul>-->
-    <!--<li v-for="singer in item.items" :key="singer.id" class="list-group-item">-->
-    <!--<p class="name" v-html="singer.name"></p>-->
-    <!--</li>-->
-    <!--</ul>-->
-    <!--</li>-->
-    <!--</ul>-->
     <ul>
       <li v-for="group in data" class="list-group" ref="listGroup" :key="group.id">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -37,12 +27,20 @@
         </li>
       </ul>
     </div>
+    <div class="list-fixed" v-if="fixTitle" ref="fixTitle">
+      <h2 class="fixed-title">{{fixTitle}}</h2>
+    </div>
+    <div class="loading-container" v-show="!data.length">
+      <loading></loading>
+    </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
 const ANCHOR_HEIGHT = 18
+const FIX_TITLE_HEIGHT = 30
 export default {
   props: {
     data: {
@@ -62,6 +60,12 @@ export default {
       return this.data.map((item) => {
         return item.title.substr(0, 1)
       })
+    },
+    fixTitle() {
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     }
   },
   created() {
@@ -75,6 +79,9 @@ export default {
   //   }, 2000)
   // },
   methods: {
+    selectItem(item) {
+      this.$emit('select', item)
+    },
     onShortcutTouchStart(e) {
       this.touch.y = e.touches[0].pageY
       this.touch.touchIndex = e.target.getAttribute('data-index')
@@ -136,15 +143,23 @@ export default {
         // console.log(i + '=====')
         if (-newY >= height1 && -newY < height2) {
           this.currentIndex = i
+          if ((height2 + newY) < FIX_TITLE_HEIGHT) {
+            this.diff = height2 + newY - FIX_TITLE_HEIGHT
+          } else {
+            this.diff = 0
+          }
+          this.$refs.fixTitle.style.top = `${this.diff}px`
           return
         }
       }
       this.currentIndex = listHeight.length - 2
+      this.$refs.fixTitle.style.top = '0px'
       console.log('底部不够了', this.currentIndex)
     }
   },
   components: {
-    Scroll
+    Scroll,
+    Loading
   }
 }
 </script>
