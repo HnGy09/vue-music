@@ -6,16 +6,22 @@
       <h1 class="title">{{title}}</h1>
       <div class="bg-image" :style="bgStyle" ref="bgImg">
         <div class="play-wrapper">
-          <div class="play">
+          <div class="play" ref="playBtn">
             <i class="icon-play"></i>
             <span class="text">随机播放全部</span>
           </div>
         </div>
         <div class="filter" ref="filter"></div>
       </div>
-      <Scroll class="list" ref="list" @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType">
+      <div class="bg-layer" ref="layer"></div>
+      <Scroll class="list"
+              ref="list"
+              @scroll="scroll"
+              :listen-scroll="listenScroll"
+              :probe-type="probeType"
+      >
         <div class="song-list-wrapper">
-          <song-list :songs="songs"></song-list>
+          <song-list :songs="songs" @select="selectSong"></song-list>
         </div>
       </Scroll>
     </div>
@@ -24,7 +30,8 @@
 <script>
 import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
-// const RESERVED_HEIGHT = 40
+import {mapActions} from 'vuex'
+const RESERVED_HEIGHT = 40
 export default {
   props: {
     bgImage: {
@@ -58,7 +65,7 @@ export default {
   mounted() {
     this.imgHeight = this.$refs.bgImg.clientHeight
     this.$refs.list.$el.style.top = `${this.imgHeight}px`
-    // this.minTransalteY = -this.imgHeight + RESERVED_HEIGHT
+    this.minTransalteY = -this.imgHeight + RESERVED_HEIGHT
   },
   methods: {
     back() {
@@ -66,18 +73,54 @@ export default {
     },
     scroll(pos) {
       this.scrollY = pos.y
-    }
+    },
+    selectSong(song, index) {
+      // console.log(this.songs)
+      console.log(index)
+      // let list ={
+      //   album:"绅士",
+      //   duration:261,
+      //   id:102636799,
+      //   image:"https://y.gtimg.cn/music/photo_new/T002R300x300M000003y8dsH2wBHlo.jpg?max_age=2592000",
+      //   mid:"001Qu4I30eVFYb",
+      //   name:"演员",
+      //   singer:"薛之谦",
+      //   url:"http://isure.stream.qqmusic.qq.com/C100001Qu4I30eVFYb.m4a?fromtag=32"
+      // }
+      this.selectPlay({
+        list: this.songs,
+        index
+      })
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
   },
   watch: {
     scrollY(newY) {
-      console.log(newY)
-      if (newY > this.minTransalteY && newY < 0) {
-        this.$refs.filter.style.top = newY + 'px'
-        this.$refs.filter.style.zIndex = 10
+      let zIndex = 0
+      let scale = 1
+      let translateY = Math.max(this.minTransalteY, newY)
+      this.$refs.layer.style.transform = `translate3d(0,${translateY}px,0)`
+      const percent = Math.abs(newY / this.imgHeight)
+
+      if (newY > 0) {
+        scale = 1 + percent
+        // zIndex = 10
       }
-      // if (newY < this.imgHeight) {
-      //   this.$refs.filter.style.top = 0
-      // }
+
+      if (newY < this.minTransalteY) {
+        this.$refs.bgImg.style.paddingTop = 0
+        this.$refs.bgImg.style.height = RESERVED_HEIGHT + 'px'
+        zIndex = 10
+        this.$refs.playBtn.style.display = 'none'
+      } else {
+        this.$refs.bgImg.style.paddingTop = '70%'
+        this.$refs.bgImg.style.height = 0
+        this.$refs.playBtn.style.display = ''
+      }
+      this.$refs.bgImg.style.transform = `scale(${scale})`
+      this.$refs.bgImg.style.zIndex = zIndex
     }
   },
   components: {
@@ -160,6 +203,7 @@ export default {
     .bg-layer
       position relative
       height 100%
+      background: $color-background
     .list
       position fixed
       top 0

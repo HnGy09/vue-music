@@ -27,17 +27,17 @@ export default {
     Listview
   },
   methods: {
-    selectItem(item) {
+    selectItem(singer) {
       this.$router.push({
-        path: `/singer/${item.id}`
+        path: `/singer/${singer.id}`
       })
-      this.setSinger(item)
+      this.setSinger(singer)
     },
     getSingerList() {
       getSingerList().then((res) => {
         if (res.code === ERR_OK) {
           this.singerList = this.normalizeSinger(res.data.list)
-          console.log(this.singerList)
+          // console.log(this.singerList)
         }
       })
     },

@@ -18,7 +18,8 @@
     "vue-lazyload": "^1.2.2",
     "axios": "^0.18.0",
     "jsonp": "^0.2.1",
-    "better-scroll": "^1.9.1"
+    "better-scroll": "^1.9.1",
+    "create-keyframe-animation": "^0.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
