@@ -1,9 +1,8 @@
 <template>
-  <div class="progress-bar"  ref="progressBar">
-    <div class="bar-inner" ref="barInner">
+  <div class="progress-bar"  ref="progressBar" @click="progressClickPos">
+    <div class="bar-inner">
       <div class="progress" ref="progress"></div>
-      <div class="progress-btn-wrapper"
-           ref="progressBtn"
+      <div class="progress-btn-wrapper" ref="progressBtn"
            @touchstart.prevent="progressTouchStart"
            @touchmove.prevent="progressTouchMove"
            @touchend="progressTouchEnd"
@@ -15,7 +14,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+// import {mapGetters} from 'vuex'
 const progressBtnWidth = 16
 export default {
   props: {
@@ -24,42 +23,49 @@ export default {
       default: 0
     }
   },
-  computed: {
-    ...mapGetters([
-      'currentSong'
-    ])
-  },
+  // computed: {
+  //   ...mapGetters([
+  //     'currentSong'
+  //   ])
+  // },
   created() {
     this.touch = {}
   },
   methods: {
     progressTouchStart(e) {
+      // this.touch.initiated = true
       this.touch.x1 = e.touches[0].pageX
+      this.touch.left = this.$refs.progress.clientWidth
     },
     progressTouchMove(e) {
-      const width = this.$refs.barInner.clientWidth - progressBtnWidth
-      this.touch.x2 = e.touches[0].pageX
       const deltaX = e.touches[0].pageX - this.touch.x1
-      if (deltaX >= 0 && deltaX <= width - this.touch.x1) {
-        this.offsetWidth(deltaX)
-      } else if (deltaX < 0 && deltaX >= this.touch.x1) {
-        this.offsetWidth(deltaX)
-      }
+      const offsetWidth = Math.max(0, Math.min(this.touch.left + deltaX, this.$refs.progressBar.clientWidth - progressBtnWidth))
+      // console.log(offsetWidth)
+      // const offsetWidth = Math.min(this.$refs.progressBar.clientWidth - progressBtnWidth, Math.max(0, this.touch.left + deltaX))
+      this.offsetWidth(offsetWidth)
     },
     progressTouchEnd() {
-      const width = this.$refs.barInner.clientWidth - progressBtnWidth
-      const time = (this.touch.x2 / width) * this.currentSong.duration
-      console.log(time)
-      // this.$refs.audio.currentTime = time
+      // this.touch.initiated = false
+      this._triggerPercent()
     },
     offsetWidth(width) {
       this.$refs.progressBtn.style.transform = `translate3d(${width}px,0,0)`
       this.$refs.progress.style.width = `${width}px`
+    },
+    progressClickPos(e) {
+      const offsetWidth = e.offsetX
+      this.offsetWidth(offsetWidth)
+      this._triggerPercent()
+    },
+    _triggerPercent() {
+      const width = this.$refs.progressBar.clientWidth - progressBtnWidth
+      const percent = this.$refs.progress.clientWidth / width
+      this.$emit('changePercent', percent)
     }
   },
   watch: {
     percent(newPercent) {
-      const width = this.$refs.barInner.clientWidth - progressBtnWidth
+      const width = this.$refs.progressBar.clientWidth - progressBtnWidth
       const offsetWidth = width * newPercent
       this.offsetWidth(offsetWidth)
     }

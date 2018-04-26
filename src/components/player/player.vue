@@ -36,9 +36,14 @@
                 <img :src="currentSong.image" alt="" class="image">
               </div>
             </div>
+            <!--cd下面小歌词-->
             <div class="playing-lyric-wrapper">
               <div class="playing-liric"></div>
             </div>
+          </div>
+          <!--右滑歌词区域-->
+          <div class="middle-r">
+
           </div>
         </div>
         <div class="bottom">
@@ -48,11 +53,11 @@
           </div>
           <!--进度条-->
           <div class="progress-wrapper">
-            <span class="time time-l">{{totalTime(currentSong.duration)}}</span>
+            <span class="time time-l">{{totalTime(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent"></progress-bar>
+              <progress-bar :percent="percent" @changePercent="changeProgressPercent"></progress-bar>
             </div>
-            <span class="time time-r">{{totalTime(currentTime)}}</span>
+            <span class="time time-r">{{totalTime(currentSong.duration)}}</span>
           </div>
           <!--播放按钮-->
           <div class="operators">
@@ -85,7 +90,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control" :class="disable">
-          <i :class="miniIcon" @click.stop="togglePlaying"></i>
+          <progress-circle :percent="percent">
+            <i :class="miniIcon" class="icon-mini" @click.stop="togglePlaying"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -107,11 +114,13 @@ import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {playMode} from 'common/js/config'
 import ProgressBar from 'base/progress-bar/progress-bar'
+import {shuffle} from 'common/js/util'
+import ProgressCircle from 'base/progress-circle/progress-circle'
 
 export default {
   computed: {
     playIcon() {
-      console.log(this.currentSong)
+      // console.log(this.currentSong)
       return this.playing ? 'icon-pause' : 'icon-play'
     },
     modeIcon() {
@@ -135,7 +144,8 @@ export default {
       'playing',
       'mode',
       'currentIndex',
-      'currentSong'
+      'currentSong',
+      'sequenceList'
     ])
   },
   data() {
@@ -145,6 +155,12 @@ export default {
     }
   },
   methods: {
+    changeProgressPercent(percent) {
+      // console.log(percent)
+      const currentTime = this.currentSong.duration * percent
+      // console.log(currentTime)
+      this.$refs.audio.currentTime = currentTime
+    },
     totalTime(time) {
       let times = time | 0
       let min = times / 60 | 0
@@ -168,6 +184,21 @@ export default {
     changeMode() {
       const mode = (this.mode + 1) % 3
       this.setPlayMode(mode)
+      let list = []
+      // console.log(this.sequenceList)
+      if (this.mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    resetCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
     },
     loop() {
       this.$refs.audio.currentTime = 0
@@ -208,7 +239,7 @@ export default {
       if (this.playlist.length === 1) {
         this.loop()
       } else {
-        if (index === this.playlist.length - 1) {
+        if (index === this.playlist.length) {
           index = 0
         }
       }
@@ -296,7 +327,8 @@ export default {
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
       setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE'
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAYLIST'
     })
   },
   watch: {
@@ -313,7 +345,8 @@ export default {
     }
   },
   components: {
-    ProgressBar
+    ProgressBar,
+    ProgressCircle
   }
 }
 </script>

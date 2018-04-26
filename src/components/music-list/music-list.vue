@@ -8,7 +8,7 @@
         <div class="play-wrapper">
           <div class="play" ref="playBtn">
             <i class="icon-play"></i>
-            <span class="text">随机播放全部</span>
+            <span class="text" @click="changeModeRandom">随机播放全部</span>
           </div>
         </div>
         <div class="filter" ref="filter"></div>
@@ -30,7 +30,7 @@
 <script>
 import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
-import {mapActions} from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 const RESERVED_HEIGHT = 40
 export default {
   props: {
@@ -49,8 +49,12 @@ export default {
   },
   computed: {
     bgStyle() {
+      console.log(this.playlist)
       return `background-image:url(${this.bgImage})`
-    }
+    },
+    ...mapGetters([
+      'playlist'
+    ])
   },
   data() {
     return {
@@ -68,6 +72,12 @@ export default {
     this.minTransalteY = -this.imgHeight + RESERVED_HEIGHT
   },
   methods: {
+    changeModeRandom() {
+      this.randomPlay({
+        list: this.songs
+        // list: this.playlist开始playlist无数据  不会播放
+      })
+    },
     back() {
       this.$router.back()
     },
@@ -93,7 +103,8 @@ export default {
       })
     },
     ...mapActions([
-      'selectPlay'
+      'selectPlay',
+      'randomPlay'
     ])
   },
   watch: {
