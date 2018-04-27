@@ -28,8 +28,12 @@
           <h1 class="title" v-html="currentSong.name"></h1>
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
-        <div class="middle">
-          <div class="middle-l">
+        <div class="middle" ref="middle"
+             @touchstart.prevent="touchStart"
+             @touchmove.prevent="touchMove"
+             @touchend="touchEnd"
+        >
+          <div class="middle-l" ref="middleL">
             <!--中间cd-->
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdCls">
@@ -43,13 +47,16 @@
           </div>
           <!--右滑歌词区域-->
           <div class="middle-r">
-
+            <div class="lyric-wrapper" style="font-size: 14px;">
+              <!--<p class="text">歌词部分</p>-->
+              歌词部分歌词部分歌词部分
+            </div>
           </div>
         </div>
         <div class="bottom">
           <div class="dot-wrapper">
-            <span class="dot"></span>
-            <span class="dot"></span>
+            <span class="dot" :class="{active:currentShow==='cd'}"></span>
+            <span class="dot" :class="{active:currentShow==='lyric'}"></span>
           </div>
           <!--进度条-->
           <div class="progress-wrapper">
@@ -151,10 +158,52 @@ export default {
   data() {
     return {
       currentTime: 0,
-      songReady: false
+      songReady: false,
+      currentShow: 'cd'
     }
   },
+  created() {
+    this.touch = {}
+  },
   methods: {
+    touchStart(e) {
+      this.touch.x1 = e.touches[0].pageX
+      // this.touch.y1 = e.touches[0].pageY
+      console.log(this.touch.x1)
+    },
+    touchMove(e) {
+      let deltaX = e.touches[0].pageX - this.touch.x1
+      let deltaY = e.touches[0].pageY - this.touch.y1
+      let width = window.innerWidth
+      console.log(width === window.innerWidth)
+      // console.log(e.touches[0].pageX + '------------')
+      // console.log(deltaX)
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        return
+      }
+
+      if (deltaX < -0.2 * width) {
+        console.log((deltaX + 0.2 * width) + 'right过来了')
+        this.$refs.middle.style.transform = `translate3d(${-width}px,0,0)`
+        this.$refs.middleL.style.opacity = '0'
+        this.$refs.middle.style.transition = `all,0.4s`
+        this.$refs.middleL.style.transition = `all,0.4s`
+        this.currentShow = 'lyric'
+      } else if (deltaX > 0.2 * width) {
+        console.log(deltaX + 'left过来了')
+        this.$refs.middle.style.transform = `translate3d(0,0,0)`
+        this.$refs.middleL.style.opacity = ''
+        this.$refs.middle.style.transition = `all,0.4s`
+        this.$refs.middleL.style.transition = `all,0.4s`
+        this.currentShow = 'cd'
+      } else {
+        this.$refs.middle.style.transform = `translate3d(${deltaX}px,0,0)`
+        this.$refs.middleL.style.opacity = ''
+      }
+    },
+    touchEnd() {
+
+    },
     changeProgressPercent(percent) {
       // console.log(percent)
       const currentTime = this.currentSong.duration * percent
