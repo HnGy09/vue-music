@@ -257,7 +257,7 @@ export default {
       }
     },
     prev() {
-      if (!this.songReady) {
+        if (!this.songReady) {
         return
       }
       let index = this.currentIndex - 1
