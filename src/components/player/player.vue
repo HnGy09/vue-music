@@ -42,16 +42,24 @@
             </div>
             <!--cd下面小歌词-->
             <div class="playing-lyric-wrapper">
-              <div class="playing-liric"></div>
+              <div class="playing-lyric">{{playingLyric}}</div>
             </div>
           </div>
           <!--右滑歌词区域-->
-          <div class="middle-r">
-            <div class="lyric-wrapper" style="font-size: 14px;">
-              <!--<p class="text">歌词部分</p>-->
-              歌词部分歌词部分歌词部分
+          <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <p class="text"
+                   ref="lyricLine"
+                   v-for="(lyric, index) in currentLyric.lines"
+                   :key="index"
+                   :class="{current: currentLineNum === index}"
+                >
+                  {{lyric.txt}}
+                </p>
+              </div>
             </div>
-          </div>
+          </scroll>
         </div>
         <div class="bottom">
           <div class="dot-wrapper">
@@ -123,6 +131,8 @@ import {playMode} from 'common/js/config'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import {shuffle} from 'common/js/util'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import Lyric from 'lyric-parser'
+import Scroll from 'base/scroll/scroll'
 
 export default {
   computed: {
@@ -143,6 +153,7 @@ export default {
       return this.songReady ? '' : 'disable'
     },
     percent() {
+      // console.log(this.currentSong.getLyric)
       return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
@@ -159,56 +170,156 @@ export default {
     return {
       currentTime: 0,
       songReady: false,
-      currentShow: 'cd'
+      currentShow: 'cd',
+      currentLyric: null,
+      currentLineNum: 0,
+      playingLyric: '暂无歌词'
     }
   },
   created() {
     this.touch = {}
   },
   methods: {
+    getLyric() {
+      this.currentSong.getLyric().then((lyric) => {
+        if (this.currentSong.lyric !== lyric) {
+          return
+        }
+        this.currentLyric = new Lyric(lyric, this.handleLyric)
+        if (this.playing) {
+          this.currentLyric.play()
+        }
+      }).catch(() => {
+        this.currentLyric = null
+        this.playingLyric = ''
+        this.currentLineNum = 0
+      })
+    },
+    handleLyric({lineNum, txt}) {
+      console.log({lineNum, txt})
+      this.currentLineNum = lineNum
+      if (lineNum > 5) {
+        let lineEl = this.$refs.lyricLine[lineNum - 5]
+        this.$refs.lyricList.scrollToElement(lineEl, 1000)
+      } else {
+        this.$refs.lyricList.scrollTo(0, 0, 1000)
+      }
+      this.playingLyric = txt
+    },
+    // touchStart(e) {
+    //   this.touch.x1 = e.touches[0].pageX
+    //   this.touch.y1 = e.touches[0].pageY
+    //   console.log(this.touch.x1)
+    // },
+    // touchMove(e) {
+    //   let deltaX = e.touches[0].pageX - this.touch.x1
+    //   let deltaY = e.touches[0].pageY - this.touch.y1
+    //   let width = window.innerWidth
+    //   this.touch.deltaX = deltaX
+    //   // console.log(width === window.innerWidth)
+    //   // console.log(e.touches[0].pageX + '------------')
+    //   // console.log(deltaX)
+    //   if (Math.abs(deltaY) > Math.abs(deltaX)) {
+    //     return
+    //   }
+    //
+    //   if (deltaX < -0.2 * width) {
+    //     // console.log((deltaX + 0.2 * width) + 'right过来了')
+    //     this.$refs.middle.style.transform = `translate3d(${-width}px,0,0)`
+    //     this.$refs.middleL.style.opacity = '0'
+    //     this.$refs.middle.style.transition = `all,0.4s`
+    //     this.$refs.middleL.style.transition = `all,0.4s`
+    //     this.currentShow = 'lyric'
+    //   } else if (deltaX > 0.2 * width) {
+    //     // console.log(deltaX + 'left过来了')
+    //     this.$refs.middle.style.transform = `translate3d(0,0,0)`
+    //     this.$refs.middleL.style.opacity = ''
+    //     this.$refs.middle.style.transition = `all,0.4s`
+    //     this.$refs.middleL.style.transition = `all,0.4s`
+    //     this.currentShow = 'cd'
+    //   } else {
+    //     console.log((deltaX - 0.2 * width) + '--------------------')
+    //     this.$refs.middle.style.transform = `translate3d(${deltaX}px,0,0)`
+    //     this.$refs.middleL.style.opacity = ''
+    //   }
+    // },
+    // touchEnd() {
+    //   if (this.touch.deltaX > -0.2 * window.innerWidth) {
+    //     // console.log((deltaX + 0.2 * width) + 'right过来了')
+    //     this.$refs.middle.style.transform = `translate3d(0,0,0)`
+    //   } else if (this.touch.deltaX < 0.2 * window.innerWidth) {
+    //     // console.log(deltaX + 'left过来了')
+    //     this.$refs.middle.style.transform = `translate3d(${-window.innerWidth}px,0,0)`
+    //   }
+    // },
     touchStart(e) {
-      this.touch.x1 = e.touches[0].pageX
-      // this.touch.y1 = e.touches[0].pageY
-      console.log(this.touch.x1)
+      this.touch.initiated = true
+      this.touch.moved = false
+      const touch = e.touches[0]
+      this.touch.startX = touch.pageX
+      this.touch.startY = touch.pageY
     },
     touchMove(e) {
-      let deltaX = e.touches[0].pageX - this.touch.x1
-      let deltaY = e.touches[0].pageY - this.touch.y1
-      let width = window.innerWidth
-      console.log(width === window.innerWidth)
-      // console.log(e.touches[0].pageX + '------------')
-      // console.log(deltaX)
+      if (!this.touch.initiated) {
+        return
+      }
+      const touch = e.touches[0]
+      const deltaX = touch.pageX - this.touch.startX
+      const deltaY = touch.pageY - this.touch.startY
       if (Math.abs(deltaY) > Math.abs(deltaX)) {
         return
       }
-
-      if (deltaX < -0.2 * width) {
-        console.log((deltaX + 0.2 * width) + 'right过来了')
-        this.$refs.middle.style.transform = `translate3d(${-width}px,0,0)`
-        this.$refs.middleL.style.opacity = '0'
-        this.$refs.middle.style.transition = `all,0.4s`
-        this.$refs.middleL.style.transition = `all,0.4s`
-        this.currentShow = 'lyric'
-      } else if (deltaX > 0.2 * width) {
-        console.log(deltaX + 'left过来了')
-        this.$refs.middle.style.transform = `translate3d(0,0,0)`
-        this.$refs.middleL.style.opacity = ''
-        this.$refs.middle.style.transition = `all,0.4s`
-        this.$refs.middleL.style.transition = `all,0.4s`
-        this.currentShow = 'cd'
-      } else {
-        this.$refs.middle.style.transform = `translate3d(${deltaX}px,0,0)`
-        this.$refs.middleL.style.opacity = ''
+      if (!this.touch.moved) {
+        this.touch.moved = true
       }
+      const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
+      const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+      this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
+      // console.log(this.touch.percent)
+      this.$refs.lyricList.$el.style.transform = `translate3d(${offsetWidth}px,0,0)`
+      this.$refs.middleL.style.opacity = 1 - this.touch.percent
     },
     touchEnd() {
-
+      console.log(this.touch.moved)
+      if (!this.touch.moved) {
+        return
+      }
+      let offsetWidth
+      let opacity
+      if (this.currentShow === 'cd') {
+        if (this.touch.percent > 0.1) {
+          offsetWidth = -window.innerWidth
+          opacity = 0
+          this.currentShow = `lyric`
+        } else {
+          offsetWidth = 0
+          opacity = 1
+        }
+      } else {
+        if (this.touch.percent < 0.9) {
+          this.currentShow = 'cd'
+          offsetWidth = 0
+          opacity = 1
+        } else {
+          offsetWidth = -window.innerWidth
+          opacity = 0
+        }
+      }
+      this.$refs.lyricList.$el.style.transform = `translate3d(${offsetWidth}px,0,0)`
+      this.$refs.middleL.style.opacity = opacity
+      this.$refs.lyricList.$el.style.transitionDuration = `0.3s`
+      this.$refs.middleL.style.transitionDuration = `0.3s`
+      this.touch.initiated = false
     },
     changeProgressPercent(percent) {
-      // console.log(percent)
       const currentTime = this.currentSong.duration * percent
-      // console.log(currentTime)
       this.$refs.audio.currentTime = currentTime
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
+      }
     },
     totalTime(time) {
       let times = time | 0
@@ -257,7 +368,7 @@ export default {
       }
     },
     prev() {
-        if (!this.songReady) {
+      if (!this.songReady) {
         return
       }
       let index = this.currentIndex - 1
@@ -387,15 +498,30 @@ export default {
         newPlaying ? audio.play() : audio.pause()
       })
     },
-    currentSong(newSong) {
-      setTimeout(() => {
+    currentSong(newSong, oldSong) {
+      if (!newSong.id) {
+        return
+      }
+      if (newSong.id === oldSong.id) {
+        return
+      }
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+        this.currentTime = 0
+        this.playingLyric = ''
+        this.currentLineNum = 0
+      }
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
         this.$refs.audio.play()
-      }, 20)
+        this.getLyric()
+      }, 1000)
     }
   },
   components: {
     ProgressBar,
-    ProgressCircle
+    ProgressCircle,
+    Scroll
   }
 }
 </script>

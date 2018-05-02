@@ -1,5 +1,5 @@
 <template>
-    <div class="music-list">
+    <div class="music-list" ref="musicList">
       <div class="back" @click="back">
         <i class="icon-back"></i>
       </div>
@@ -14,7 +14,7 @@
         <div class="filter" ref="filter"></div>
       </div>
       <div class="bg-layer" ref="layer"></div>
-      <Scroll class="list"
+      <scroll class="list"
               ref="list"
               @scroll="scroll"
               :listen-scroll="listenScroll"
@@ -23,7 +23,7 @@
         <div class="song-list-wrapper">
           <song-list :songs="songs" @select="selectSong"></song-list>
         </div>
-      </Scroll>
+      </scroll>
     </div>
 </template>
 
@@ -31,8 +31,11 @@
 import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
 import {mapActions, mapGetters} from 'vuex'
+import {playlistMixin} from 'common/js/mixins'
+
 const RESERVED_HEIGHT = 40
 export default {
+  mixins: [playlistMixin],
   props: {
     bgImage: {
       type: String,
@@ -72,6 +75,11 @@ export default {
     this.minTransalteY = -this.imgHeight + RESERVED_HEIGHT
   },
   methods: {
+    playlistHandle(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.list.$el.style.bottom = bottom
+      this.$refs.list.refresh()
+    },
     changeModeRandom() {
       this.randomPlay({
         list: this.songs

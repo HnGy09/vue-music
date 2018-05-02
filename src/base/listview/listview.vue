@@ -39,6 +39,7 @@
 <script>
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+
 const ANCHOR_HEIGHT = 18
 const FIX_TITLE_HEIGHT = 30
 export default {
@@ -107,6 +108,9 @@ export default {
       console.log(index)
       this.currentIndex = index
       this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+    },
+    refresh() {
+      this.$refs.listview.refresh()
     },
     _calculateHeight() {
       this.listHeight = []
