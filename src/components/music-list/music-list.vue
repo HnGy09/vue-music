@@ -21,8 +21,9 @@
               :probe-type="probeType"
       >
         <div class="song-list-wrapper">
-          <song-list :songs="songs" @select="selectSong"></song-list>
+          <song-list :songs="songs" @select="selectSong" :rank="rank"></song-list>
         </div>
+        <loading v-if="!songs.length" class="loading-container"></loading>
       </scroll>
     </div>
 </template>
@@ -30,8 +31,9 @@
 <script>
 import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
-import {mapActions, mapGetters} from 'vuex'
+import {mapActions} from 'vuex'
 import {playlistMixin} from 'common/js/mixins'
+import Loading from 'base/loading/loading'
 
 const RESERVED_HEIGHT = 40
 export default {
@@ -48,16 +50,20 @@ export default {
     songs: {
       type: Array,
       default: () => []
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
     bgStyle() {
-      console.log(this.playlist)
+      // console.log(this.playlist)
       return `background-image:url(${this.bgImage})`
-    },
-    ...mapGetters([
-      'playlist'
-    ])
+    }
+    // ...mapGetters([
+    //   'playlist'
+    // ])
   },
   data() {
     return {
@@ -94,7 +100,7 @@ export default {
     },
     selectSong(song, index) {
       // console.log(this.songs)
-      console.log(index)
+      // console.log(index)
       // let list ={
       //   album:"绅士",
       //   duration:261,
@@ -144,7 +150,8 @@ export default {
   },
   components: {
     SongList,
-    Scroll
+    Scroll,
+    Loading
   }
 }
 </script>

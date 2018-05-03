@@ -196,7 +196,7 @@ export default {
       })
     },
     handleLyric({lineNum, txt}) {
-      console.log({lineNum, txt})
+      // console.log({lineNum, txt})
       this.currentLineNum = lineNum
       if (lineNum > 5) {
         let lineEl = this.$refs.lyricLine[lineNum - 5]
@@ -365,6 +365,9 @@ export default {
       this.$refs.audio.play()
       if (!this.playing) {
         this.setPlayingState(true)
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
       }
     },
     prev() {
