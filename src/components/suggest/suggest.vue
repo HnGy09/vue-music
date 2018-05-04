@@ -35,7 +35,8 @@ export default {
   data() {
     return {
       result: [],
-      page: 1
+      page: 1,
+      pullup: true
     }
   },
   created() {
