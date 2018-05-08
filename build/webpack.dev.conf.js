@@ -104,6 +104,22 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+
+      // // 歌词url
+      // app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
+      //   const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+      //   axios.post(url, req.body, {
+      //     headers: {
+      //       referer: 'https://y.qq.com/',
+      //       origin: 'https://y.qq.com',
+      //       'Content-type': 'application/x-www-form-urlencoded'
+      //     }
+      //   }).then((response) => {
+      //     res.json(response.data)
+      //   }).catch((e) => {
+      //     console.log(e)
+      //   })
+      // })
     }
   },
   plugins: [
