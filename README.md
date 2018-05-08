@@ -102,7 +102,7 @@ new Vue({
 `@click.stop="clickEvent"`
 ### router-link的类
 router-link跳转后,点击的链接会激活一个名为`.router-link-active`的类,可借此进行css设计
-### encodeURIComponent() 
+### encodeURIComponent()
 把字符串符串作为 URI 组件进行编码,忽略ASCII字母数字和标点- _ . ! ~ * ' ( )
 ### 查看QQ音乐的JSONP的URL接口
 审查元素-network-JS或XHR-含fcg的项目-URL从开头至.fcg结束
@@ -396,4 +396,11 @@ _getDiscList() {
     }
   })
 }
+```
+```
+如果是需要在远程仓库中忽略已纳入版本管理中的文件或文件夹，可以这样操作：
+1，删除本地git缓存git rm -r --cached <filename>
+2，在.gitignore中加入需要忽略的文件夹或文件3，重新track文件git add -A
+git commit -m "remove files"
+4，推送到远程仓库git push origin master
 ```
