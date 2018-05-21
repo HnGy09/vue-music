@@ -109,11 +109,12 @@
             <i :class="miniIcon" class="icon-mini" @click.stop="togglePlaying"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <audio :src="currentSong.url"
            ref="audio"
            @ended="end"
@@ -125,7 +126,7 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {playMode} from 'common/js/config'
 import ProgressBar from 'base/progress-bar/progress-bar'
@@ -133,6 +134,7 @@ import {shuffle} from 'common/js/util'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
+import Playlist from 'base/playlist/playlist'
 
 export default {
   computed: {
@@ -180,6 +182,9 @@ export default {
     this.touch = {}
   },
   methods: {
+    showPlaylist() {
+      this.$refs.playlist.show()
+    },
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
         if (this.currentSong.lyric !== lyric) {
@@ -336,6 +341,7 @@ export default {
     },
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     updateTime(e) {
       this.currentTime = e.target.currentTime
@@ -393,6 +399,9 @@ export default {
         return
       }
       this.setPlayingState(!this.playing)
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
     next() {
       if (!this.songReady) {
@@ -492,7 +501,10 @@ export default {
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayMode: 'SET_PLAY_MODE',
       setPlayList: 'SET_PLAYLIST'
-    })
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   watch: {
     playing(newPlaying) {
@@ -524,7 +536,8 @@ export default {
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    Playlist
   }
 }
 </script>
