@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
-import {saveSearch, deleteSearch, clearSearch, savePlay} from 'common/js/cache'
+import {saveSearch, deleteSearch, clearSearch, savePlay, saveFavorite, deleteFavorite} from 'common/js/cache'
 
 function findIndex(list, song) {
   return list.findIndex((item) => {
@@ -35,7 +35,7 @@ export const randomPlay = function ({commit}, {list}) {
   commit(types.SET_PLAY_MODE, playMode.random)
 }
 
-export const insertSong = function ({commit, state}, song) {
+export const insertSongs = function ({commit, state}, song) {
   let playlist = state.playlist.slice()
   let sequenceList = state.sequenceList.slice()
   let currentIndex = state.currentIndex
@@ -65,6 +65,8 @@ export const insertSong = function ({commit, state}, song) {
       sequenceList.splice(fsIndex + 1, 1)
     }
   }
+  console.log(playlist)
+  console.log(sequenceList)
   commit(types.SET_PLAYLIST, playlist)
   commit(types.SET_SEQUENCE_LIST, sequenceList)
   commit(types.SET_CURRENT_INDEX, currentIndex)
@@ -122,4 +124,50 @@ export const deleteSongsList = function ({commit}) {
   commit(types.SET_PLAYLIST, [])
   commit(types.SET_PLAYING_STATE, false)
   commit(types.SET_CURRENT_INDEX, -1)
+}
+
+export const insertSong = function ({commit, state}, song) {
+  let playlist = state.playlist.slice()
+  let sequenceList = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+  let currentSong = playlist[currentIndex]
+  let index = findIndex(playlist, song)
+  currentIndex++
+  playlist.splice(currentIndex, 0, song)
+  // console.log(index)
+  // console.log(currentIndex)
+  if (index > -1) {
+    if (index < currentIndex) {
+      currentIndex--
+      playlist.splice(index, 1)
+    } else {
+      playlist.splice(index + 1, 1)
+    }
+  }
+
+  let sCurrentIndex = findIndex(sequenceList, currentSong) + 1
+  let sIndex = findIndex(sequenceList, song)
+
+  sequenceList.splice(sCurrentIndex, 0, song)
+
+  if (sIndex > -1) {
+    if (sCurrentIndex > sIndex) {
+      sequenceList.splice(sIndex, 1)
+    } else {
+      sequenceList.splice(sIndex + 1, 1)
+    }
+  }
+  commit(types.SET_SEQUENCE_LIST, sequenceList)
+  commit(types.SET_PLAYLIST, playlist)
+  commit(types.SET_PLAYING_STATE, true)
+  commit(types.SET_FULL_SCREEN, true)
+  commit(types.SET_CURRENT_INDEX, currentIndex)
+}
+
+export const saveFavoriteList = function ({commit}, song) {
+  commit(types.SET_FAVORITE_LIST, saveFavorite(song))
+}
+
+export const deleteFavoriteList = function ({commit}, song) {
+  commit(types.SET_FAVORITE_LIST, deleteFavorite(song))
 }

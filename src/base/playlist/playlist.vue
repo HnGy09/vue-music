@@ -39,6 +39,7 @@
           <span>关闭</span>
         </div>
       </div>
+      <confirm :text="text" ref="confirm" @confirm="confirmClear"></confirm>
       <add-song ref="addSong"></add-song>
     </div>
   </transition>
@@ -48,6 +49,7 @@
 import {mapGetters, mapActions, mapMutations} from 'vuex'
 import Scroll from 'base/scroll/scroll'
 import AddSong from 'components/add-song/add-song'
+import Confirm from 'base/confirm/confirm'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 
@@ -68,10 +70,15 @@ export default {
   },
   data() {
     return {
-      showFlag: false
+      showFlag: false,
+      text: '是否清空播放列表'
     }
   },
   methods: {
+    confirmClear() {
+      this.deleteSongsList()
+      this.hide()
+    },
     selectItem(item, index) {
       if (this.mode === playMode.random) {
         index = this.playlist.findIndex((song) => {
@@ -119,8 +126,7 @@ export default {
       }
     },
     deleteAll() {
-      this.deleteSongsList()
-      this.hide()
+      this.$refs.confirm.show()
     },
     addSong() {
       this.$refs.addSong.show()
@@ -157,7 +163,8 @@ export default {
   },
   components: {
     Scroll,
-    AddSong
+    AddSong,
+    Confirm
   }
 }
 </script>

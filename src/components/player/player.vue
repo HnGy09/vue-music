@@ -89,7 +89,7 @@
               <i class="icon-next" @click="next"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon icon-favorite"></i>
+              <i class="icon" @click="toggleFavorite(currentSong)" :class="getFavoriteIcon(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -165,7 +165,8 @@ export default {
       'mode',
       'currentIndex',
       'currentSong',
-      'sequenceList'
+      'sequenceList',
+      'favoriteList'
     ])
   },
   data() {
@@ -182,10 +183,27 @@ export default {
     this.touch = {}
   },
   methods: {
+    getFavoriteIcon(currentSong) {
+      let index = this.favoriteList.findIndex((item) => {
+        return item.id === currentSong.id
+      })
+      return index > -1 ? 'icon-favorite' : 'icon-not-favorite'
+    },
+    toggleFavorite(currentSong) {
+      let index = this.favoriteList.findIndex((item) => {
+        return item.id === currentSong.id
+      })
+      if (index === -1) {
+        this.saveFavoriteList(currentSong)
+      } else {
+        this.deleteFavoriteList(currentSong)
+      }
+    },
     showPlaylist() {
       this.$refs.playlist.show()
     },
     getLyric() {
+      console.log(this.currentSong)
       this.currentSong.getLyric().then((lyric) => {
         if (this.currentSong.lyric !== lyric) {
           return
@@ -383,6 +401,7 @@ export default {
       let index = this.currentIndex - 1
       if (this.playlist.length === 1) {
         this.loop()
+        return
       } else {
         if (index === -1) {
           index = this.playlist.length - 1
@@ -410,6 +429,7 @@ export default {
       let index = this.currentIndex + 1
       if (this.playlist.length === 1) {
         this.loop()
+        return
       } else {
         if (index === this.playlist.length) {
           index = 0
@@ -503,7 +523,9 @@ export default {
       setPlayList: 'SET_PLAYLIST'
     }),
     ...mapActions([
-      'savePlayHistory'
+      'savePlayHistory',
+      'saveFavoriteList',
+      'deleteFavoriteList'
     ])
   },
   watch: {

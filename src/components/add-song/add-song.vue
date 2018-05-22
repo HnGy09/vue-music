@@ -8,28 +8,34 @@
         </div>
       </div>
       <div class="search-box-wrapper">
-        <search-box placeholder="搜索歌曲" @query="onQueryChange"></search-box>
+        <search-box placeholder="搜索歌曲" @query="onQueryChange" ref="searchBox"></search-box>
       </div>
       <div class="shortcut" v-show="!query">
         <switches :switches="switches"  @switch="switchItem" :currentIndex="currentIndex"></switches>
         <div class="list-wrapper">
           <!--左边switch-->
-          <scroll class="list-scroll" v-show="currentIndex===0" :data="playHistory">
+          <scroll class="list-scroll" ref="songList" v-if="currentIndex===0" :data="playHistory">
             <div class="list-inner">
-              <song-list :songs="playHistory"></song-list>
+              <song-list :songs="playHistory" @select="selectSong"></song-list>
             </div>
           </scroll>
           <!--右边switch-->
-          <scroll class="list-scroll"  v-show="currentIndex===1" :data="searchHistory">
+          <scroll class="list-scroll" ref="searchList"  v-if="currentIndex===1" :data="searchHistory">
             <div class="list-inner">
-              <search-list :searches="searchHistory"></search-list>
+              <search-list :searches="searchHistory" @select="addQuery"  @delete="deleteSearchHistory"></search-list>
             </div>
           </scroll>
         </div>
       </div>
       <div class="search-result" v-show="query">
-        <suggest :query="query"></suggest>
+        <suggest :query="query" :showSinger="showSinger" @select="selectSuggest"></suggest>
       </div>
+      <top-tip ref="topTip">
+        <div class="tip-title">
+          <i class="icon-ok"></i>
+          <span class="text">1首歌曲已经添加到播放列表</span>
+        </div>
+      </top-tip>
     </div>
   </transition>
 </template>
@@ -41,7 +47,9 @@ import SongList from 'base/song-list/song-list'
 import SearchList from 'base/search-list/search-list'
 import Scroll from 'base/scroll/scroll'
 import Suggest from 'components/suggest/suggest'
-import {mapGetters} from 'vuex'
+import TopTip from 'base/top-tip/top-tip'
+import {mapGetters, mapActions} from 'vuex'
+import Song from 'common/js/song'
 export default {
   computed: {
     ...mapGetters([
@@ -57,22 +65,49 @@ export default {
         {name: '搜索历史'}
       ],
       currentIndex: 0,
-      query: ''
+      query: '',
+      showSinger: false
     }
   },
   methods: {
+    addQuery(query) {
+      this.$refs.searchBox.setQuery(query)
+    },
+    selectSuggest() {
+      this.saveSearchHistory(this.query)
+      this.$refs.topTip.show()
+    },
+    selectSong(item, index) {
+      if (index !== 0) {
+        console.log(item)
+        this.insertSong(new Song(item))
+        this.$refs.topTip.show()
+      }
+    },
     onQueryChange(query) {
       this.query = query
     },
     show() {
       this.showFlag = true
+      setTimeout(() => {
+        if (this.currentIndex === 0) {
+          this.$refs.songList.refresh()
+        } else {
+          this.$refs.searchList.refresh()
+        }
+      }, 20)
     },
     hide() {
       this.showFlag = false
     },
     switchItem(index) {
       this.currentIndex = index
-    }
+    },
+    ...mapActions([
+      'insertSong',
+      'saveSearchHistory',
+      'deleteSearchHistory'
+    ])
   },
   components: {
     SearchBox,
@@ -80,7 +115,8 @@ export default {
     SongList,
     SearchList,
     Scroll,
-    Suggest
+    Suggest,
+    TopTip
   }
 }
 </script>
