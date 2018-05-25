@@ -7,7 +7,7 @@
 </template>
 
 <script>
-// import {debounce} from 'common/js/util'
+import {debounce} from 'common/js/util'
 export default {
   props: {
     placeholder: {
@@ -32,14 +32,22 @@ export default {
     }
   },
   created() {
-    // this.$watch('query', debounce((newQuery) => {
-    //   this.$emit('query', newQuery)
-    // }, 200))
+    this.$watch('query', debounce((newQuery) => {
+      this.$emit('query', newQuery)
+    }, 2000))
   },
   watch: {
-    query(newQuery) {
-      this.$emit('query', newQuery)
-    }
+    // query(newQuery) {
+    //   let timer
+    //   // return function () {
+    //   if (timer) {
+    //     clearTimeout(timer)
+    //   }
+    //   timer = setTimeout((newQuery) => {
+    //     this.$emit('query', newQuery)
+    //   }, 1000)
+    //   // }
+    // }
   }
 }
 </script>

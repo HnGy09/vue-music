@@ -26,6 +26,8 @@ export const selectPlay = function ({commit, state}, {list, index}) {
 }
 
 export const randomPlay = function ({commit}, {list}) {
+  console.log(list)
+  console.log({list})
   commit(types.SET_FULL_SCREEN, true)
   commit(types.SET_PLAYING_STATE, true)
   commit(types.SET_CURRENT_INDEX, 0)

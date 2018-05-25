@@ -15,12 +15,15 @@ export function shuffle(arr) {
 
 export function debounce(func, delay) {
   let timer
-
+  // console.log(func)
+  // console.log(...args)
   return function (...args) {
+    console.log(...args)
     if (timer) {
       clearTimeout(timer)
     }
     timer = setTimeout(() => {
+      console.log(args)
       func.apply(this, args)
     }, delay)
   }
