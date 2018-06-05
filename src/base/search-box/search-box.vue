@@ -32,9 +32,9 @@ export default {
     }
   },
   created() {
-    this.$watch('query', debounce((newQuery) => {
-      this.$emit('query', newQuery)
-    }, 2000))
+    // this.$watch('query', debounce((newQuery) => {
+    //   this.$emit('query', newQuery)
+    // }, 2000))
   },
   watch: {
     // query(newQuery) {
@@ -48,6 +48,11 @@ export default {
     //   }, 1000)
     //   // }
     // }
+    query(newQ) {
+      debounce(() => {
+        this.$emit('query', newQ)
+      }, 200)
+    }
   }
 }
 </script>
