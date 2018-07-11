@@ -6,6 +6,10 @@ import 'common/stylus/index.styl'
 import fastclick from 'fastclick'
 import VueLazyLoad from 'vue-lazyload'
 import store from './store'
+import VConsole from 'vconsole/dist/vconsole.min.js'
+
+// let vConsole = new VConsole() // 初始化
+
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

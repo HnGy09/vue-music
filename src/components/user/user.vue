@@ -65,6 +65,9 @@ export default {
       this.$refs.playList && this.$refs.playList.refresh()
     },
     selectItem(song) {
+      // console.log(111111111111111111111)
+      // console.log(song)
+      // console.log(new Song(song))
       this.insertSong(new Song(song))
     },
     random() {
